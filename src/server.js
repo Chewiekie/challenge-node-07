@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const slackTemplate = require('./utils/slackTemplate');
+const { ExpressAdapter } = require('ask-sdk-express-adapter');
+const Alexa = require('ask-sdk-core');
+const skillBuilder = Alexa.SkillBuilders.custom();
 const app = express();
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
@@ -11,6 +14,28 @@ const PORT = process.env.PORT || 3000;
 let database;
 
 app.use(bodyParser.json());
+
+const skill = skillBuilder.create();
+const adapter = new ExpressAdapter(skill, false, false);
+
+const LaunchRequestHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+  },
+  handle(handlerInput) {
+    const speechText = 'Hello World - Platzi Masters';
+
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .withSimpleCard('Hello World', speechText)
+      .getResponse();
+  }
+};
+
+skillBuilder.addRequestHandlers(
+  LaunchRequestHandler
+);
 
 MongoClient.connect(dbUrl, {
   useUnifiedTopology: true
@@ -24,25 +49,7 @@ app.get('/', (request, response) => {
   response.send('¡Hola Mundo Cruel!');
 });
 
-app.post('/alexa', (request, response) => {
-  response.json({
-    "version": "1.0",
-    "response": {
-      "shouldEndSession": true,
-      "outputSpeech": {
-        "type": "SSML",
-        "ssml": "<speak>Hola Platzi Masters</speak>"
-      },
-      "card": {
-        "type": "Simple",
-        "title": "Master Quotes",
-        "content": "Platzi Master Quotes"
-      }
-    },
-    "sessionAttributes": {},
-    "userAgent": "ask-nodejs/1.0.25 Node/v13.10.1"
-  });
-});
+app.post('/alexa', adapter.getRequestHandlers());
 
 app.get('/quotes', (request, response) => {
   const data = database.db('platzi-quotes');
@@ -115,3 +122,67 @@ app.delete('/quotes', (request, response) => {
 app.listen(PORT, function () {
   console.log('Servidor funcionando http://localhost:3000')
 });
+
+
+
+
+
+
+// const skillBuilder = Alexa.SkillBuilders.custom();
+
+
+// const LaunchRequestHandler = {
+//   canHandle(handlerInput) {
+//     return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+//   },
+//   handle(handlerInput) {
+//     const speechText = 'Hello World - Your skill has launched';
+
+//     return handlerInput.responseBuilder
+//       .speak(speechText)
+//       .reprompt(speechText)
+//       .withSimpleCard('Hello World', speechText)
+//       .getResponse();
+//   }
+// };
+
+// skillBuilder.addRequestHandlers(
+//   LaunchRequestHandler
+// )
+
+
+
+// const express = require('express');
+// const { ExpressAdapter } = require('ask-sdk-express-adapter');
+// const Alexa = require('ask-sdk-core');
+// const app = express();
+
+
+// var PORT = process.env.port || 8080;
+
+// const LaunchRequestHandler = {
+//   canHandle(handlerInput) {
+//     return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+//   },
+//   handle(handlerInput) {
+//     const speechText = 'Hello World - Your skill has launched';
+
+//     return handlerInput.responseBuilder
+//       .speak(speechText)
+//       .reprompt(speechText)
+//       .withSimpleCard('Hello World', speechText)
+//       .getResponse();
+//   }
+// };
+
+// skillBuilder.addRequestHandlers(
+//   LaunchRequestHandler
+// )
+
+// const skill = skillBuilder.create();
+
+// const adapter = new ExpressAdapter(skill, false, false);
+
+// app.post('/alexa', adapter.getRequestHandlers());
+
+// app.listen(PORT);
