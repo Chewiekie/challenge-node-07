@@ -24,6 +24,26 @@ app.get('/', (request, response) => {
   response.send('¡Hola Mundo Cruel!');
 });
 
+app.get('/alexa', (request, response) => {
+  response.json({
+    "version": "1.0",
+    "response": {
+      "shouldEndSession": true,
+      "outputSpeech": {
+        "type": "SSML",
+        "ssml": "<speak>Hola Platzi Masters</speak>"
+      },
+      "card": {
+        "type": "Simple",
+        "title": "Master Quotes",
+        "content": "Platzi Master Quotes"
+      }
+    },
+    "sessionAttributes": {},
+    "userAgent": "ask-nodejs/1.0.25 Node/v13.10.1"
+  });
+});
+
 app.get('/quotes', (request, response) => {
   const data = database.db('platzi-quotes');
   const collectionQuotes = data.collection('quotes');
