@@ -24,7 +24,7 @@ app.get('/', (request, response) => {
   response.send('¡Hola Mundo Cruel!');
 });
 
-app.get('/alexa', (request, response) => {
+app.post('/alexa', (request, response) => {
   response.json({
     "version": "1.0",
     "response": {
