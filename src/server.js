@@ -24,7 +24,19 @@ app.get('/', (request, response) => {
   response.send('¡Hola Mundo Cruel!');
 });
 
-app.get('/quotes', (request, response) => {
+app.get('/random', (request, response) => {
+  const data = database.db('platzi-quotes');
+  const collectionQuotes = data.collection('quotes');
+  collectionQuotes.find().toArray()
+    .then(data => {
+      const randomQuote = data[Math.floor(Math.random() * data.length)];
+      response.json({ 'results': [randomQuote] })
+    })
+    .catch(err => console.log(err));
+});
+
+
+app.get('/quote', (request, response) => {
   const data = database.db('platzi-quotes');
   const collectionQuotes = data.collection('quotes');
   collectionQuotes.find().toArray()
@@ -33,6 +45,7 @@ app.get('/quotes', (request, response) => {
     })
     .catch(err => console.log(err));
 });
+
 
 app.post('/slackQuotes', (request, response) => {
   const data = database.db('platzi-quotes');
